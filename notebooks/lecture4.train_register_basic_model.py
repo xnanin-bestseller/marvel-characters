@@ -21,7 +21,7 @@ def is_databricks():
 
 if not is_databricks():
     load_dotenv()
-    profile = os.environ["PROFILE"]
+    profile = os.environ.get("PROFILE", "dbc-54cb4cda-21a4")
     mlflow.set_tracking_uri(f"databricks://{profile}")
     mlflow.set_registry_uri(f"databricks-uc://{profile}")
 
@@ -93,3 +93,5 @@ print(v[0].__dict__)
 # not supported
 v = mlflow.search_model_versions(
     filter_string="tags.git_sha='abcd12345'")
+
+# COMMAND ----------

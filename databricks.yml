@@ -27,7 +27,7 @@ targets:
     default: true
     mode: development
     workspace:
-      host: <your host>
+      host: https://adb-7988001640760877.17.azuredatabricks.net
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.target}/${bundle.name}
     variables:
       schedule_pause_status: PAUSED
