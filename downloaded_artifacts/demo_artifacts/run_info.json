@@ -1,12 +1,12 @@
 {
     "info": {
-        "artifact_uri": "dbfs:/databricks/mlflow-tracking/3100500532472063/ec56e82b73bf4a8eb208b06841755795/artifacts",
-        "end_time": 1772697094176,
-        "experiment_id": "3100500532472063",
+        "artifact_uri": "dbfs:/databricks/mlflow-tracking/4157506460187249/80dcc37fdbfc4d559671bc60a1855529/artifacts",
+        "end_time": 1772710835448,
+        "experiment_id": "4157506460187249",
         "lifecycle_stage": "active",
-        "run_id": "ec56e82b73bf4a8eb208b06841755795",
+        "run_id": "80dcc37fdbfc4d559671bc60a1855529",
         "run_name": "marvel-demo-run",
-        "start_time": 1772697093284,
+        "start_time": 1772710834890,
         "status": "FINISHED",
         "user_id": ""
     },
@@ -20,16 +20,17 @@
         },
         "tags": {
             "git_sha": "1234567890abcd",
-            "mlflow.databricks.cluster.id": "0305-073334-bjbtw174-v2n",
-            "mlflow.databricks.cluster.info": "{\"cluster_name\":\"\",\"spark_version\":\"18.0.x-photon-scala2.13\",\"autotermination_minutes\":120}",
+            "mlflow.databricks.cluster.id": "0305-110732-i47mx5ma",
+            "mlflow.databricks.cluster.info": "{\"cluster_name\":\"Xurxo Nanin Gonzalez's Cluster 2026-03-05 11:19:23\",\"spark_version\":\"18.0.x-scala2.13\",\"node_type_id\":\"Standard_D4ds_v4\",\"driver_node_type_id\":\"Standard_D4ds_v4\",\"autotermination_minutes\":120,\"disk_spec\":{},\"num_workers\":0}",
             "mlflow.databricks.cluster.libraries": "{\"installable\":[],\"redacted\":[]}",
+            "mlflow.databricks.notebook.commandID": "1001772709153505_5442922186921267495_46d31bbb524688388a5be4d65831161f",
             "mlflow.note.content": "marvel character prediction demo run",
-            "mlflow.runColor": "#e87b9f",
+            "mlflow.runColor": "#479a5f",
             "mlflow.runName": "marvel-demo-run",
             "mlflow.source.name": "/Users/xurxo.nanin/github/marvel-characters/.venv/lib/python3.12/site-packages/ipykernel_launcher.py",
             "mlflow.source.type": "LOCAL",
             "mlflow.user": "xurxo.nanin@bestseller.com",
-            "mlflow.artifacts.spn": "/WorkspaceInternal/Mlflow/Artifacts/3100500532472063/Runs/ec56e82b73bf4a8eb208b06841755795/"
+            "mlflow.artifacts.spn": "/WorkspaceInternal/Mlflow/Artifacts/4157506460187249/Runs/80dcc37fdbfc4d559671bc60a1855529/"
         }
     },
     "inputs": {

@@ -1,16 +1,14 @@
 {
-    "_experiment_id": "3100500532472063",
+    "_experiment_id": "4157506460187249",
     "_name": "/Shared/marvel-demo",
-    "_artifact_location": "dbfs:/databricks/mlflow-tracking/3100500532472063",
+    "_artifact_location": "dbfs:/databricks/mlflow-tracking/4157506460187249",
     "_lifecycle_stage": "active",
     "_tags": {
-        "mlflow.experimentKind": "custom_model_development",
-        "mlflow.ownerId": "75680286553656",
-        "repository_name": "marvelousmlops/marvel-characters",
+        "mlflow.ownerId": "146123702015056",
         "mlflow.experiment.sourceName": "/Shared/marvel-demo",
         "mlflow.ownerEmail": "xurxo.nanin@bestseller.com",
         "mlflow.experimentType": "MLFLOW_EXPERIMENT"
     },
-    "_creation_time": 1772636217547,
-    "_last_update_time": 1772696863928
+    "_creation_time": 1772710668616,
+    "_last_update_time": 1772710668616
 }
