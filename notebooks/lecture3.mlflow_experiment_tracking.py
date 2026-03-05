@@ -17,7 +17,7 @@ mlflow.get_tracking_uri()
 # COMMAND ----------
 if not is_databricks():
     load_dotenv()
-    profile = os.environ.get("PROFILE")
+    profile = os.environ.get("PROFILE", "dbc-54cb4cda-21a4")
     mlflow.set_tracking_uri(f"databricks://{profile}")
     mlflow.set_registry_uri(f"databricks-uc://{profile}")
 
