@@ -26,7 +26,6 @@ spark = SparkSession.builder.getOrCreate()
 w = WorkspaceClient()
 
 os.environ["DBR_HOST"] = w.config.host
-os.environ["DBR_TOKEN"] = w.tokens.create(lifetime_seconds=1200).token_value
 
 if not is_databricks():
     load_dotenv()
