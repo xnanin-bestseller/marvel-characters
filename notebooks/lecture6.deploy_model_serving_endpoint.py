@@ -7,11 +7,11 @@
 # COMMAND ----------
 import time
 import os
-import requests
 from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 from mlflow import mlflow
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.errors import DatabricksError
 from dotenv import load_dotenv
 
 from marvel_characters.config import ProjectConfig
@@ -24,6 +24,8 @@ from marvel_characters.utils import is_databricks
 spark = SparkSession.builder.getOrCreate()
 
 w = WorkspaceClient()
+
+print(f"Authenticated Databricks user: {w.current_user.me().user_name}")
 
 os.environ["DBR_HOST"] = w.config.host
 
@@ -76,6 +78,17 @@ sampled_records = sampled_records.replace({np.nan: None}).to_dict(orient="record
 dataframe_records = [[record] for record in sampled_records]
 
 # COMMAND ----------
+# MAGIC %md
+# MAGIC ### Connection approach update
+# MAGIC
+# MAGIC This tutorial now calls the serving endpoint through the Databricks SDK:
+# MAGIC `w.serving_endpoints.query(...)`.
+# MAGIC
+# MAGIC Instead of manually posting HTTP requests with an `Authorization: Bearer ...` header,
+# MAGIC the SDK uses Databricks authentication resolution (notebook context, profile, and env vars),
+# MAGIC which is generally more robust and easier to troubleshoot.
+
+# COMMAND ----------
 # Call the endpoint with one sample record
 
 """
@@ -87,7 +100,7 @@ Each dataframe record in the request body should be list of json with columns lo
   'Identity': 'Public',
   'Gender': 'Male',
   'Marital_Status': 'Single',
-  'Teams': 'Avengers',
+  'Teams': 0, # Teams is an Integer
   'Origin': 'Human',
   'Magic': 1,
   'Mutant': 1}]
@@ -97,15 +110,37 @@ def call_endpoint(record):
     """
     Calls the model serving endpoint with a given input record.
     """
-    serving_endpoint = f"{os.environ['DBR_HOST']}/serving-endpoints/marvel-character-model-serving/invocations"    
+    serving_endpoint = f"{os.environ['DBR_HOST']}/serving-endpoints/marvel-character-model-serving/invocations"
     print(f"Calling endpoint: {serving_endpoint}")
-    
-    response = requests.post(
-        serving_endpoint,
-        headers={"Authorization": f"Bearer {os.environ['DBR_TOKEN']}"},
-        json={"dataframe_records": record},
-    )
-    return response.status_code, response.text
+
+    # Connection approach changed: we now use the Databricks SDK query API
+    # instead of a manual HTTP request with Authorization headers.
+    # This relies on the SDK auth chain (profile/env/notebook context),
+    # which is typically more reliable than managing bearer tokens manually.
+    try:
+        response = w.serving_endpoints.query(
+            name="marvel-character-model-serving",
+            dataframe_records=record,
+        )
+        return 200, response
+    except DatabricksError as e:
+        status_code = getattr(e, "status_code", None)
+        error_code = getattr(e, "error_code", None)
+        message = str(e)
+
+        if status_code is None:
+            if "Invalid Token" in message or "UNAUTHENTICATED" in message:
+                status_code = 401
+            elif "PERMISSION_DENIED" in message:
+                status_code = 403
+            elif "not found" in message.lower():
+                status_code = 404
+            else:
+                status_code = 500
+
+        return status_code, {"error_code": error_code, "message": message}
+    except Exception as e:
+        return 500, {"error_code": "UNKNOWN", "message": str(e)}
 
 
 status_code, response_text = call_endpoint(dataframe_records[0])
@@ -120,3 +155,5 @@ for i in range(len(dataframe_records)):
     print(f"Response Text: {response_text}")
     time.sleep(0.2) 
 # COMMAND ----------
+
+

@@ -12,8 +12,8 @@ import os
 import time
 
 import mlflow
-import requests
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.errors import DatabricksError
 from databricks.sdk.service.serving import (
     EndpointCoreConfigInput,
     ServedEntityInput,
@@ -33,8 +33,11 @@ spark = SparkSession.builder.getOrCreate()
 
 w = WorkspaceClient()
 
+# Display the identity resolved by Databricks SDK authentication.
+print(f"Authenticated Databricks user: {w.current_user.me().user_name}")
+
+# Keep workspace host in env to print the invocation URL and for consistency.
 os.environ["DBR_HOST"] = w.config.host
-os.environ["DBR_TOKEN"] = w.tokens.create(lifetime_seconds=1200).token_value
 
 if not is_databricks():
     load_dotenv()
@@ -158,17 +161,50 @@ print(train_set.dtypes)
 print(dataframe_records[0])
 
 # COMMAND ----------
+# MAGIC %md
+# MAGIC ### Connection approach update
+# MAGIC
+# MAGIC This notebook invokes Model Serving using the Databricks SDK:
+# MAGIC `w.serving_endpoints.query(...)`.
+# MAGIC
+# MAGIC Instead of manually posting HTTP requests with bearer headers,
+# MAGIC the SDK uses Databricks auth resolution (notebook context, profile, env vars),
+# MAGIC improving reliability and reducing token-management issues.
+
+# COMMAND ----------
 # Call the endpoint with one sample record
 def call_endpoint(record):
     """Calls the model serving endpoint with a given input record."""
     serving_endpoint = f"{os.environ['DBR_HOST']}/serving-endpoints/marvel-characters-ab-testing/invocations"
+    print(f"Calling endpoint: {serving_endpoint}")
 
-    response = requests.post(
-        serving_endpoint,
-        headers={"Authorization": f"Bearer {os.environ['DBR_TOKEN']}"},
-        json={"dataframe_records": record},
-    )
-    return response.status_code, response.text
+    # Use the Databricks SDK query API instead of manual HTTP + bearer token.
+    # This follows the same connection pattern as lecture6.deploy_model_serving_endpoint.py.
+    try:
+        # SDK raises structured exceptions for auth/permission/not-found errors.
+        response = w.serving_endpoints.query(
+            name="marvel-characters-ab-testing",
+            dataframe_records=record,
+        )
+        return 200, response
+    except DatabricksError as e:
+        status_code = getattr(e, "status_code", None)
+        error_code = getattr(e, "error_code", None)
+        message = str(e)
+
+        if status_code is None:
+            if "Invalid Token" in message or "UNAUTHENTICATED" in message:
+                status_code = 401
+            elif "PERMISSION_DENIED" in message:
+                status_code = 403
+            elif "not found" in message.lower():
+                status_code = 404
+            else:
+                status_code = 500
+
+        return status_code, {"error_code": error_code, "message": message}
+    except Exception as e:
+        return 500, {"error_code": "UNKNOWN", "message": str(e)}
 
 status_code, response_text = call_endpoint(dataframe_records[0])
 print(f"Response Status: {status_code}")

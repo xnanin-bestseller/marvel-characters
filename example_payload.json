@@ -1,0 +1,16 @@
+{
+    "dataframe_records": [
+        {
+            "Height": 1.75,
+            "Weight": 70.0,
+            "Universe": "Earth-616",
+            "Identity": "Public",
+            "Gender": "Male",
+            "Marital_Status": "Single",
+            "Teams": 1,
+            "Origin": "Human",
+            "Magic": 1,
+            "Mutant": 1
+        }
+    ]
+}
